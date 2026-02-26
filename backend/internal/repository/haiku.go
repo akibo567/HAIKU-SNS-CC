@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -18,7 +19,7 @@ type HaikuPost struct {
 	Ku2         string
 	Ku3         string
 	LikeCount   int
-	CreatedAt   string
+	CreatedAt   time.Time
 }
 
 type HaikuRepository struct {

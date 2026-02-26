@@ -3,7 +3,10 @@
     "allow": [
       "Bash(brew list:*)",
       "Bash(docker --version:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(./scripts/dev-build.sh:*)",
+      "Bash(curl:*)",
+      "Bash(docker compose:*)"
     ]
   }
 }

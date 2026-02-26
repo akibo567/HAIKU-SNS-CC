@@ -79,6 +79,45 @@ docker compose logs -f frontend  # フロントエンドのみ
 
 ---
 
+## マイグレーション
+
+マイグレーションファイルは `backend/migrations/` に格納されています。
+**バックエンド起動時に自動で `UP` が実行されます。**
+
+手動で操作したい場合は、開発環境が起動中の状態でスクリプトを実行します。
+
+### UP（適用）
+
+```bash
+./scripts/migrate-up.sh        # 全て UP
+./scripts/migrate-up.sh 1      # 1ステップだけ UP
+```
+
+### DOWN（ロールバック）
+
+```bash
+./scripts/migrate-down.sh      # 1ステップ DOWN（デフォルト）
+./scripts/migrate-down.sh 2    # 2ステップ DOWN
+```
+
+### マイグレーションファイルの追加
+
+```
+backend/migrations/
+├── 000001_create_users.up.sql
+├── 000001_create_users.down.sql
+├── 000002_create_haiku_posts.up.sql
+├── 000002_create_haiku_posts.down.sql
+└── ...
+```
+
+ファイル名の規則: `<連番>_<説明>.up.sql` / `<連番>_<説明>.down.sql`
+
+`*.up.sql` に変更内容（CREATE TABLE など）、`*.down.sql` に巻き戻し内容（DROP TABLE など）を記述します。
+次回のサーバー起動時、または `migrate-up.sh` で自動適用されます。
+
+---
+
 ## 本番環境
 
 ### 初回セットアップ
