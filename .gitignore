@@ -1,0 +1,21 @@
+# 環境変数
+.env
+.env.local
+*.env.prod
+secrets/
+
+# Docker
+.docker/
+
+# Go
+backend/tmp/
+backend/bin/
+
+# Node.js
+node_modules/
+frontend/.next/
+frontend/out/
+
+# OS
+.DS_Store
+Thumbs.db
