@@ -17,6 +17,16 @@ export type CreateHaikuInput = {
   ku3: string;
 };
 
+export type Reply = {
+  id: string;
+  postId: string;
+  ku1: string;
+  ku2: string;
+  ku3: string;
+  createdAt: string;
+  author: Pick<User, "id" | "username" | "displayName">;
+};
+
 export type PaginatedResponse<T> = {
   data: T[];
   meta: {

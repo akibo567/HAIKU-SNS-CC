@@ -1,5 +1,5 @@
 import { apiRequest } from "./client";
-import type { HaikuPost, CreateHaikuInput } from "@/types/haiku";
+import type { HaikuPost, CreateHaikuInput, Reply } from "@/types/haiku";
 
 type PostsResponse = {
   data: HaikuPost[];
@@ -33,6 +33,22 @@ export async function likeHaiku(id: string, token: string) {
 
 export async function unlikeHaiku(id: string, token: string) {
   return apiRequest(`/posts/${id}/like`, { method: "DELETE", token });
+}
+
+export async function fetchReplies(postId: string): Promise<{ data: Reply[] }> {
+  return apiRequest<{ data: Reply[] }>(`/posts/${postId}/replies`);
+}
+
+export async function createReply(
+  postId: string,
+  input: CreateHaikuInput,
+  token: string
+): Promise<{ data: Reply }> {
+  return apiRequest<{ data: Reply }>(`/posts/${postId}/replies`, {
+    method: "POST",
+    body: JSON.stringify(input),
+    token,
+  });
 }
 
 export async function fetchUserPosts(

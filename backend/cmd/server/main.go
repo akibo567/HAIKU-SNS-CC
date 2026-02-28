@@ -42,9 +42,10 @@ func main() {
 
 	userRepo := repository.NewUserRepository(pool)
 	haikuRepo := repository.NewHaikuRepository(pool)
+	replyRepo := repository.NewReplyRepository(pool)
 
 	authHandler := handler.NewAuthHandler(userRepo, cfg.JWTSecret, cfg.JWTRefreshSecret)
-	haikuHandler := handler.NewHaikuHandler(haikuRepo)
+	haikuHandler := handler.NewHaikuHandler(haikuRepo, replyRepo)
 	userHandler := handler.NewUserHandler(userRepo, haikuRepo)
 
 	r := chi.NewRouter()
@@ -77,6 +78,8 @@ func main() {
 			r.With(middleware.Auth(cfg.JWTSecret)).Delete("/{id}", haikuHandler.Delete)
 			r.With(middleware.Auth(cfg.JWTSecret)).Post("/{id}/like", haikuHandler.Like)
 			r.With(middleware.Auth(cfg.JWTSecret)).Delete("/{id}/like", haikuHandler.Unlike)
+			r.With(middleware.OptionalAuth(cfg.JWTSecret)).Get("/{id}/replies", haikuHandler.ListReplies)
+			r.With(middleware.Auth(cfg.JWTSecret)).Post("/{id}/replies", haikuHandler.CreateReply)
 		})
 
 		// ユーザー

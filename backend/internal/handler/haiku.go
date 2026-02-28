@@ -13,10 +13,11 @@ import (
 
 type HaikuHandler struct {
 	haikuRepo *repository.HaikuRepository
+	replyRepo *repository.ReplyRepository
 }
 
-func NewHaikuHandler(haikuRepo *repository.HaikuRepository) *HaikuHandler {
-	return &HaikuHandler{haikuRepo: haikuRepo}
+func NewHaikuHandler(haikuRepo *repository.HaikuRepository, replyRepo *repository.ReplyRepository) *HaikuHandler {
+	return &HaikuHandler{haikuRepo: haikuRepo, replyRepo: replyRepo}
 }
 
 func (h *HaikuHandler) ListTimeline(w http.ResponseWriter, r *http.Request) {
@@ -150,6 +151,74 @@ func (h *HaikuHandler) Unlike(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{"data": map[string]string{"message": "いいねを取り消しました"}})
+}
+
+func (h *HaikuHandler) ListReplies(w http.ResponseWriter, r *http.Request) {
+	postID := chi.URLParam(r, "id")
+
+	replies, err := h.replyRepo.ListByPostID(r.Context(), postID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "返句の取得に失敗しました")
+		return
+	}
+
+	items := make([]map[string]any, len(replies))
+	for i, rep := range replies {
+		items[i] = replyResponse(rep)
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{"data": items})
+}
+
+func (h *HaikuHandler) CreateReply(w http.ResponseWriter, r *http.Request) {
+	postID := chi.URLParam(r, "id")
+	userID := middleware.GetUserID(r)
+
+	// 親投稿の存在確認
+	post, err := h.haikuRepo.FindByID(r.Context(), postID)
+	if err != nil || post == nil {
+		writeError(w, http.StatusNotFound, "NOT_FOUND", "俳句が見つかりません")
+		return
+	}
+
+	var req struct {
+		Ku1 string `json:"ku1"`
+		Ku2 string `json:"ku2"`
+		Ku3 string `json:"ku3"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "VALIDATION_ERROR", "リクエストが不正です")
+		return
+	}
+
+	if err := mora.ValidateHaiku(req.Ku1, req.Ku2, req.Ku3); err != nil {
+		writeError(w, http.StatusBadRequest, "INVALID_MORA_COUNT", err.Error())
+		return
+	}
+
+	reply, err := h.replyRepo.Create(r.Context(), postID, userID, req.Ku1, req.Ku2, req.Ku3)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "INTERNAL_ERROR", "返句の投稿に失敗しました")
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, map[string]any{"data": replyResponse(*reply)})
+}
+
+func replyResponse(rep repository.Reply) map[string]any {
+	return map[string]any{
+		"id":        rep.ID,
+		"postId":    rep.PostID,
+		"ku1":       rep.Ku1,
+		"ku2":       rep.Ku2,
+		"ku3":       rep.Ku3,
+		"createdAt": rep.CreatedAt,
+		"author": map[string]any{
+			"id":          rep.UserID,
+			"username":    rep.Username,
+			"displayName": rep.DisplayName,
+		},
+	}
 }
 
 func haikuResponse(p repository.HaikuPost, likedByMe bool) map[string]any {
