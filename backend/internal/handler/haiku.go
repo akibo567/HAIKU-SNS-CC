@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -11,12 +12,28 @@ import (
 	"github.com/goshichigo/backend/internal/repository"
 )
 
-type HaikuHandler struct {
-	haikuRepo *repository.HaikuRepository
-	replyRepo *repository.ReplyRepository
+type haikuRepository interface {
+	List(ctx context.Context, cursor string, limit int) ([]repository.HaikuPost, error)
+	Create(ctx context.Context, userID, ku1, ku2, ku3 string) (*repository.HaikuPost, error)
+	FindByID(ctx context.Context, id string) (*repository.HaikuPost, error)
+	Delete(ctx context.Context, id, userID string) (bool, error)
+	AddLike(ctx context.Context, userID, postID string) error
+	RemoveLike(ctx context.Context, userID, postID string) error
+	IsLikedByUser(ctx context.Context, userID, postID string) (bool, error)
+	LikedPostIDs(ctx context.Context, userID string, postIDs []string) (map[string]bool, error)
 }
 
-func NewHaikuHandler(haikuRepo *repository.HaikuRepository, replyRepo *repository.ReplyRepository) *HaikuHandler {
+type replyRepository interface {
+	Create(ctx context.Context, postID, userID, ku1, ku2, ku3 string) (*repository.Reply, error)
+	ListByPostID(ctx context.Context, postID string) ([]repository.Reply, error)
+}
+
+type HaikuHandler struct {
+	haikuRepo haikuRepository
+	replyRepo replyRepository
+}
+
+func NewHaikuHandler(haikuRepo haikuRepository, replyRepo replyRepository) *HaikuHandler {
 	return &HaikuHandler{haikuRepo: haikuRepo, replyRepo: replyRepo}
 }
 
