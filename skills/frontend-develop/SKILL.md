@@ -1,4 +1,9 @@
-# SKILL: フロントエンド（Next.js 15 / TypeScript）
+---
+name: frontend-develop
+description: frontend/ディレクトリ以下での、Systemのfrontend開発時の規約。frontend開発時に必ず呼び出される。
+---
+
+# フロントエンド開発（Next.js 15 / TypeScript）
 
 ## バージョン・ランタイム
 

@@ -1,4 +1,9 @@
-# SKILL: バックエンド（Go 1.24 / PostgreSQL 17）
+---
+name: backend-develop
+description: backend/ディレクトリ以下での、Systemのbackend開発時の規約。backend開発時に必ず呼び出される。
+---
+
+# バックエンド開発（Go 1.24 / PostgreSQL 17）
 
 ## バージョン
 

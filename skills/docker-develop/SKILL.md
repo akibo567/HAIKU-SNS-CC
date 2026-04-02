@@ -1,3 +1,8 @@
+---
+name: docker-develop
+description: SystemのDocker開発時の規約。Docker構成の変更時に必ず呼び出される。
+---
+
 # SKILL: Docker / Nginx
 
 ## バージョン
